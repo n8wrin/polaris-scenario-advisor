@@ -260,8 +260,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const stream = client.messages.stream({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2048,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages,
     });
