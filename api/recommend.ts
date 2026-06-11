@@ -253,20 +253,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     { role: 'user', content: `Scenario: ${scenario}${personaInstruction}` },
   ];
 
+  // Stream SSE so the connection stays alive and we don't hit Vercel's timeout
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
   try {
-    const response = await client.messages.create({
+    const stream = client.messages.stream({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages,
     });
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : '';
-    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
-    const recommendation = JSON.parse(cleaned);
-    return res.status(200).json(recommendation);
+    stream.on('text', (text) => {
+      res.write(`data: ${JSON.stringify({ text })}\n\n`);
+    });
+
+    await stream.finalMessage();
+    res.write('data: [DONE]\n\n');
+    res.end();
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
-    return res.status(500).json({ error: message });
+    res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
+    res.end();
   }
 }
