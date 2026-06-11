@@ -16,24 +16,39 @@ export async function getRecommendation(
     throw new Error(err.error || `Request failed: ${response.status}`);
   }
 
-  // Read the SSE stream and accumulate the full JSON text
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let accumulated = '';
+  let buffer = '';  // persists across chunks so split lines are reassembled
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
 
-    const chunk = decoder.decode(value, { stream: true });
-    for (const line of chunk.split('\n')) {
+    buffer += decoder.decode(value, { stream: true });
+
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';  // last element may be incomplete — keep for next chunk
+
+    for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
       const payload = line.slice(6).trim();
-      if (payload === '[DONE]') break;
+      if (payload === '[DONE]') continue;
 
       const parsed = JSON.parse(payload) as { text?: string; error?: string };
       if (parsed.error) throw new Error(parsed.error);
       if (parsed.text) accumulated += parsed.text;
+    }
+  }
+
+  // flush any remaining buffer content
+  if (buffer.startsWith('data: ')) {
+    const payload = buffer.slice(6).trim();
+    if (payload && payload !== '[DONE]') {
+      try {
+        const parsed = JSON.parse(payload) as { text?: string };
+        if (parsed.text) accumulated += parsed.text;
+      } catch { /* ignore malformed trailing line */ }
     }
   }
 
