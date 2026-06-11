@@ -53,7 +53,7 @@ function generateBrief(scenario: string, persona: Persona | null, rec: Recommend
 }
 
 export default function App() {
-  const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('polaris-advisor-key') ?? '');
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('polaris-advisor-key') ?? '');
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [keyError, setKeyError] = useState('');
 
@@ -82,7 +82,7 @@ export default function App() {
       setKeyError('API key should start with sk-ant-');
       return;
     }
-    sessionStorage.setItem('polaris-advisor-key', key);
+    localStorage.setItem('polaris-advisor-key', key);
     setApiKey(key);
     setKeyError('');
   }
@@ -165,7 +165,7 @@ export default function App() {
           </div>
           <button
             className="change-key"
-            onClick={() => { sessionStorage.removeItem('polaris-advisor-key'); setApiKey(''); setApiKeyInput(''); }}
+            onClick={() => { localStorage.removeItem('polaris-advisor-key'); setApiKey(''); setApiKeyInput(''); }}
           >
             Change key
           </button>
