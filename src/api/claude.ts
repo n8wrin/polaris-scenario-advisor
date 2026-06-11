@@ -52,10 +52,25 @@ export async function getRecommendation(
     }
   }
 
+  // Walk brace depth to find the first complete top-level JSON object.
+  // lastIndexOf('}') breaks when the model appends code examples after the JSON.
   const jsonStart = accumulated.indexOf('{');
-  const jsonEnd = accumulated.lastIndexOf('}');
+  if (jsonStart === -1) {
+    throw new Error(`Failed to parse response as JSON.\n\nRaw: ${accumulated.slice(0, 200)}`);
+  }
 
-  if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
+  let depth = 0;
+  let jsonEnd = -1;
+  for (let i = jsonStart; i < accumulated.length; i++) {
+    const ch = accumulated[i];
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) { jsonEnd = i; break; }
+    }
+  }
+
+  if (jsonEnd === -1) {
     throw new Error(`Failed to parse response as JSON.\n\nRaw: ${accumulated.slice(0, 200)}`);
   }
 
