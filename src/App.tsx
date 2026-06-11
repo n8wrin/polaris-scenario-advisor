@@ -53,10 +53,6 @@ function generateBrief(scenario: string, persona: Persona | null, rec: Recommend
 }
 
 export default function App() {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('polaris-advisor-key') ?? '');
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [keyError, setKeyError] = useState('');
-
   const [persona, setPersona] = useState<Persona | null>(null);
   const [scenario, setScenario] = useState('');
   const [refineInput, setRefineInput] = useState('');
@@ -76,17 +72,6 @@ export default function App() {
     }
   }, [recommendation]);
 
-  function saveKey() {
-    const key = apiKeyInput.trim();
-    if (!key.startsWith('sk-ant-')) {
-      setKeyError('API key should start with sk-ant-');
-      return;
-    }
-    localStorage.setItem('polaris-advisor-key', key);
-    setApiKey(key);
-    setKeyError('');
-  }
-
   async function submit(scenarioText: string, isRefinement = false) {
     if (!scenarioText.trim()) return;
     setLoading(true);
@@ -96,7 +81,7 @@ export default function App() {
     const updatedHistory = isRefinement ? [...history, newMessage] : [];
 
     try {
-      const rec = await getRecommendation(apiKey, scenarioText, persona, updatedHistory);
+      const rec = await getRecommendation(scenarioText, persona, updatedHistory);
       const assistantMessage: Message = {
         role: 'assistant',
         content: JSON.stringify(rec),
@@ -124,34 +109,6 @@ export default function App() {
     });
   }
 
-  if (!apiKey) {
-    return (
-      <div className="key-gate">
-        <div className="key-gate-card">
-          <div className="logo">◈</div>
-          <h1>Polaris Scenario Advisor</h1>
-          <p>Describe what you're building. Get the right Polaris components, layout, and guidance — framed for your role.</p>
-          <div className="key-form">
-            <label htmlFor="apikey">Anthropic API Key</label>
-            <input
-              id="apikey"
-              type="password"
-              placeholder="sk-ant-..."
-              value={apiKeyInput}
-              onChange={e => { setApiKeyInput(e.target.value); setKeyError(''); }}
-              onKeyDown={e => e.key === 'Enter' && saveKey()}
-            />
-            {keyError && <div className="key-error">{keyError}</div>}
-            <button className="btn-primary" onClick={saveKey} disabled={!apiKeyInput.trim()}>
-              Continue
-            </button>
-            <p className="key-note">Your key is stored in sessionStorage only and never sent anywhere except directly to Anthropic.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="app">
       <header className="app-header">
@@ -163,12 +120,6 @@ export default function App() {
               <p>Describe what you're building → get the right components</p>
             </div>
           </div>
-          <button
-            className="change-key"
-            onClick={() => { localStorage.removeItem('polaris-advisor-key'); setApiKey(''); setApiKeyInput(''); }}
-          >
-            Change key
-          </button>
         </div>
       </header>
 
