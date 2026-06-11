@@ -52,13 +52,15 @@ export async function getRecommendation(
     }
   }
 
-  const cleaned = accumulated
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```\s*$/, '')
-    .trim();
+  const jsonStart = accumulated.indexOf('{');
+  const jsonEnd = accumulated.lastIndexOf('}');
+
+  if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
+    throw new Error(`Failed to parse response as JSON.\n\nRaw: ${accumulated.slice(0, 200)}`);
+  }
 
   try {
-    return JSON.parse(cleaned) as Recommendation;
+    return JSON.parse(accumulated.slice(jsonStart, jsonEnd + 1)) as Recommendation;
   } catch {
     throw new Error(`Failed to parse response as JSON.\n\nRaw: ${accumulated.slice(0, 200)}`);
   }
