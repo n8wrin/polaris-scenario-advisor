@@ -564,6 +564,23 @@ body {
   font-family: 'JetBrains Mono', monospace;
 }
 
+.component-snippet {
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  background: #1b1f2e;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #c9d1e0;
+  white-space: pre;
+}
+
+.components-grid--snippets {
+  grid-template-columns: 1fr;
+}
+
 /* --- Layout / Wireframe --- */
 
 .layout-description {

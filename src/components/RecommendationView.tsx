@@ -52,7 +52,7 @@ export function RecommendationView({ recommendation, persona, onCopyBrief, brief
         <h3 className="section-title">
           <span className="section-icon">◆</span> Recommended components
         </h3>
-        <div className="components-grid">
+        <div className={`components-grid${components.some(c => c.codeSnippet) ? ' components-grid--snippets' : ''}`}>
           {components.map((c, i) => (
             <div key={i} className="component-card">
               <div className="component-header">
@@ -73,6 +73,9 @@ export function RecommendationView({ recommendation, persona, onCopyBrief, brief
                     <span key={j} className="variant-chip">{v}</span>
                   ))}
                 </div>
+              )}
+              {c.codeSnippet && (
+                <pre className="component-snippet"><code>{c.codeSnippet}</code></pre>
               )}
             </div>
           ))}

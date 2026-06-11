@@ -4,6 +4,7 @@ export interface ComponentRecommendation {
   name: string;
   rationale: string;
   relevantVariants?: string[];
+  codeSnippet?: string;
   docUrl: string;
 }
 

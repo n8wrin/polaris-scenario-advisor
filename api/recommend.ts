@@ -195,6 +195,7 @@ JSON schema:
       "name": "string — exact Polaris component name",
       "rationale": "string — why this component fits THIS scenario specifically",
       "relevantVariants": ["string"] or omit,
+      "codeSnippet": "string — developer persona only: 5–15 line JSX snippet showing the key props for this specific scenario. Omit for product/designer personas.",
       "docUrl": "string"
     }
   ],
@@ -220,7 +221,8 @@ Rules:
 - Make rationale specific to the scenario
 - If the scenario implies custom UI that Polaris already solves, flag as a rework warning
 - 3–7 components is typical
-- warnings can be empty []`;
+- warnings can be empty []
+- codeSnippet: only include when persona is developer. Show the most scenario-relevant props — not every prop. No import statements. Use realistic values that match the scenario, not placeholder text. Escape any backtick or backslash characters in the JSON string.`;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
