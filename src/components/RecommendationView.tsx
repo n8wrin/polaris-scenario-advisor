@@ -1,5 +1,6 @@
 import type { Recommendation, Persona } from '../types';
 import { WireframeView } from './WireframeView';
+import { ComponentPreview } from './ComponentPreview';
 
 interface Props {
   recommendation: Recommendation;
@@ -55,6 +56,7 @@ export function RecommendationView({ recommendation, persona, onCopyBrief, brief
         <div className={`components-grid${components.some(c => c.codeSnippet) ? ' components-grid--snippets' : ''}`}>
           {components.map((c, i) => (
             <div key={i} className="component-card">
+              {persona === 'designer' && <ComponentPreview name={c.name} />}
               <div className="component-header">
                 <span className="component-name">{c.name}</span>
                 <a
